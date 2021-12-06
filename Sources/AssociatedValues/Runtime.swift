@@ -41,27 +41,6 @@ public enum Runtime {
     /// ```swift
     /// private var key: Void?
     ///
-    /// Runtime.set("1", to: object, by: &key)  // associate "1" to object
-    /// Runtime.get(from: object, by: &key)  // returns "1"
-    /// ```
-    public static func set(
-        _ value: Any?,
-        to object: Any,
-        by key: UnsafeRawPointer
-    ) {
-        objc_setAssociatedObject(
-            object,
-            key,
-            value,
-            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
-        )
-    }
-    
-    /// Set associated value by key.
-    ///
-    /// ```swift
-    /// private var key: Void?
-    ///
     /// // associate a UIView instance to object, with a weak ref:
     /// Runtime.set(uiView!, to: object, by: &key, referencedWeakly: true)
     ///
@@ -74,17 +53,32 @@ public enum Runtime {
         _ value: AnyObject?,
         to object: Any,
         by key: UnsafeRawPointer,
-        referencedWeakly: Bool
+        referencedWeakly: Bool = false
     ) {
         if referencedWeakly {
             guard let value = value else {
-                set(nil, to: object, by: key)
+                objc_setAssociatedObject(
+                    object,
+                    key,
+                    nil,
+                    .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                )
                 return
             }
             let weakRef = RuntimeWeakRef(object: value)
-            set(weakRef, to: object, by: key)
+            objc_setAssociatedObject(
+                object,
+                key,
+                weakRef,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         } else {
-            set(value, to: object, by: key)
+            objc_setAssociatedObject(
+                object,
+                key,
+                value,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         }
     }
 }
