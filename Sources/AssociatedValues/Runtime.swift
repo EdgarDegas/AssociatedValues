@@ -50,7 +50,7 @@ public enum Runtime {
     /// Runtime.get(from: object, by: &key)  // returns nil
     /// ```
     public static func set(
-        _ value: AnyObject?,
+        _ value: Any?,
         to object: Any,
         by key: UnsafeRawPointer,
         referencedWeakly: Bool = false
@@ -65,7 +65,7 @@ public enum Runtime {
                 )
                 return
             }
-            let weakRef = RuntimeWeakRef(object: value)
+            let weakRef = RuntimeWeakRef(object: value as AnyObject)
             objc_setAssociatedObject(
                 object,
                 key,
